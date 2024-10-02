@@ -1,0 +1,1188 @@
+---
+title: "Analyse performance"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(pROC)
+library(ggthemes)
+library(cowplot)
+theme_set(theme_light())
+```
+
+```{r}
+rm(list=ls())
+set.seed(42)
+```
+
+
+```{r}
+get_summary = function(infile) {
+  
+  df_all = read_csv(infile)
+  
+  df = df_all %>% 
+  mutate(true_y = ifelse(OUTCOME_ast_result == 'R', 1, 0)) %>%
+  rename(abx = INFO_antibiotic)
+  return(df)
+}
+
+```
+
+
+```{r}
+df1 = get_summary('data/predictions_co-amoxiclav.csv')
+df2 = get_summary('data/predictions_amoxicillin.csv')
+df3 = get_summary('data/predictions_piperacillin-tazobactam.csv')
+df4 = get_summary('data/predictions_ceftriaxone.csv')
+df5 = get_summary('data/predictions_ciprofloxacin.csv')
+df6 = get_summary('data/predictions_co-trimoxazole.csv')
+df7 = get_summary('data/predictions_gentamicin.csv')
+```
+
+```{r}
+# merge df
+df = bind_rows(df1, df2, df3, df4, df5, df6, df7)
+```
+
+
+Read in predictions from extended training period (train+test1)
+```{r}
+df1 = get_summary('data/predictions_extended_co-amoxiclav.csv')
+df2 = get_summary('data/predictions_extended_amoxicillin.csv')
+df3 = get_summary('data/predictions_extended_piperacillin-tazobactam.csv')
+df4 = get_summary('data/predictions_extended_ceftriaxone.csv')
+df5 = get_summary('data/predictions_extended_ciprofloxacin.csv')
+df6 = get_summary('data/predictions_extended_co-trimoxazole.csv')
+df7 = get_summary('data/predictions_extended_gentamicin.csv')
+
+# merge df
+df_extended = bind_rows(df1, df2, df3, df4, df5, df6, df7) %>% 
+  filter(dataset=="test2") %>% 
+  mutate(dataset="test2_extended")
+```
+
+Read in predictions from incrementally updated training (train... then test1)
+```{r}
+df1 = get_summary('data/predictions_updated_co-amoxiclav.csv')
+df2 = get_summary('data/predictions_updated_amoxicillin.csv')
+df3 = get_summary('data/predictions_updated_piperacillin-tazobactam.csv')
+df4 = get_summary('data/predictions_updated_ceftriaxone.csv')
+df5 = get_summary('data/predictions_updated_ciprofloxacin.csv')
+df6 = get_summary('data/predictions_updated_co-trimoxazole.csv')
+df7 = get_summary('data/predictions_updated_gentamicin.csv')
+
+# merge df
+df_updated = bind_rows(df1, df2, df3, df4, df5, df6, df7) %>% 
+  filter(dataset=="test2") %>% 
+  mutate(dataset="test2_updated")
+```
+
+Collect all data together
+```{r}
+df = bind_rows(df, df_extended, df_updated)
+```
+
+
+
+Import species data
+```{r}
+df1 = get_summary('data/predictions_species_co-amoxiclav.csv')
+df2 = get_summary('data/predictions_species_amoxicillin.csv')
+df3 = get_summary('data/predictions_species_piperacillin-tazobactam.csv')
+df4 = get_summary('data/predictions_species_ceftriaxone.csv')
+df5 = get_summary('data/predictions_species_ciprofloxacin.csv')
+df6 = get_summary('data/predictions_species_co-trimoxazole.csv')
+df7 = get_summary('data/predictions_species_gentamicin.csv')
+
+df_species = bind_rows(df1, df2, df3, df4, df5, df6, df7) %>% 
+  mutate(dataset = paste0(dataset, "_species"))
+```
+
+
+```{r}
+df = bind_rows(df, df_species)
+```
+
+
+
+
+
+```{r}
+df %>% group_by(abx, dataset) %>% 
+  summarise(n=n(), n_resistant=sum(true_y), percent_resistant=round(100*n_resistant/n))
+```
+
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  group_by(abx) %>% 
+  summarise(n=n(), n_resistant=sum(true_y), percent_resistant=round(100*n_resistant/n))
+```
+
+
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  select(pt, index_dt, INFO_accessionnumber, DEMOGRAPHICS_age, DEMOGRAPHICS_sex_M, COMORBIDITY_charlson_comorbidity_score,
+              PREV_HOSP_STAY_days_since_admission_at_index_dt) %>% 
+  unique() %>% 
+  summarise(n_bc = n(), n_pt = n_distinct(pt), 
+            min(index_dt),
+            max(index_dt),
+            age_q50 = round(median(DEMOGRAPHICS_age)), 
+            age_q25 = round(quantile(DEMOGRAPHICS_age, c(0.25))), 
+            age_q75 = round(quantile(DEMOGRAPHICS_age, c(0.75))),
+            n_male = sum(DEMOGRAPHICS_sex_M==1),
+            pct_male = round(100*sum(DEMOGRAPHICS_sex_M==1)/n()),
+            charlson_q50 = median(COMORBIDITY_charlson_comorbidity_score),
+            charlson_q25 = quantile(COMORBIDITY_charlson_comorbidity_score, c(0.25)), 
+            charlson_q75 = quantile(COMORBIDITY_charlson_comorbidity_score, c(0.75)),
+            ca = sum(PREV_HOSP_STAY_days_since_admission_at_index_dt<2),   
+            ca_pct = round(100*sum(PREV_HOSP_STAY_days_since_admission_at_index_dt<2)/n())
+  )
+
+```
+
+```{r}
+df %>% select(pt, index_dt, INFO_accessionnumber, dataset) %>% 
+  unique() %>% 
+  group_by(dataset) %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber), n_distinct(pt))
+```
+
+
+Species isolated
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  select(pt, index_dt, INFO_bugname) %>% 
+  unique() %>% 
+  mutate(INFO_bugname = str_replace(INFO_bugname, '\\(ESBL\\)', '')) %>%
+  group_by(bugname=INFO_bugname) %>%
+  summarise(n=n()) %>% 
+  mutate(pct = round(100*n/sum(n),0)) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  select(abx, OUTCOME_ast_result) %>% 
+  mutate(OUTCOME_ast_result = ifelse(str_detect(OUTCOME_ast_result, 'I'), 'S', OUTCOME_ast_result)) %>% #recode intermediate results as sensitive
+  group_by(abx, OUTCOME_ast_result) %>%
+  summarise(n=n()) %>% 
+  pivot_wider(names_from = OUTCOME_ast_result, values_from = n) %>% 
+  rename(ast_s = S, ast_r = R) %>%
+  mutate(n=ast_s+ast_r) %>% 
+  mutate(pct_s = round(100*ast_s/n,0), pct_r = round(100*ast_r/n,0)) 
+```
+
+Baseline antibiotics
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  select(pt, index_dt, INFO_BASELINE_ABX_baseline_abx) %>% 
+  unique() %>% 
+  group_by(INFO_base_abx=INFO_BASELINE_ABX_baseline_abx) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  ungroup() %>% 
+  mutate(pct = round(100*n/sum(n),0))
+```
+
+baseline carbapenem
+```{r}
+df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2')) %>%
+  select(pt, index_dt, INFO_BASELINE_ABX_baseline_abx) %>% 
+  unique() %>% 
+  filter(str_detect(INFO_BASELINE_ABX_baseline_abx, 'penem')) %>%
+  count()
+```
+
+
+
+```{r}
+df %>% 
+  group_by(dataset) %>% 
+  summarise(n_distinct(pt), n_distinct(pt, index_dt, INFO_accessionnumber))
+```
+
+
+```{r rows.print=100}
+a_resistance = df %>% select(dataset, abx, OUTCOME_ast_result) %>% 
+  mutate(abx = factor(str_to_sentence(abx),
+                      levels = c("Amoxicillin", "Co-amoxiclav", "Ceftriaxone", "Piperacillin-tazobactam", "Ciprofloxacin", "Co-trimoxazole", "Gentamicin"))) %>%
+  mutate(OUTCOME_ast_result = ifelse(str_detect(OUTCOME_ast_result, 'I'), 'S', OUTCOME_ast_result)) %>% #recode intermediate results as sensitive
+  group_by(dataset, abx, OUTCOME_ast_result) %>%
+  summarise(n=n()) %>% 
+  pivot_wider(names_from = OUTCOME_ast_result, values_from = n) %>% 
+  rename(ast_s = S, ast_r = R) %>%
+  mutate(n=ast_s+ast_r) %>% 
+  mutate(pct_s = round(100*ast_s/n,0), pct_r = round(100*ast_r/n,0)) 
+a_resistance %>% write_csv('data/datasets_antibiotic_resistance.csv')
+a_resistance
+```
+
+get performance characteristics
+```{r}
+get_perf = function(df_function) {
+  ss = df_function %>%
+  group_by(dataset, abx) %>%
+  summarise(tp = sum(true_y==1 & calib_pred_y==1), 
+            tn = sum(true_y==0 & calib_pred_y==0), 
+            fp = sum(true_y==0 & calib_pred_y==1), 
+            fn = sum(true_y==1 & calib_pred_y==0),
+            .groups = "drop_last") %>%
+  mutate(sens = round(100*tp/(tp+fn),1), spec = round(100*tn/(tn+fp),1), 
+         ppv = round(100*tp/(tp+fp),1), npv = round(100*tn/(tn+fn),1)) %>% 
+  select(-tp, -tn, -fp, -fn)
+
+roc = df_function %>% 
+  group_by(dataset, abx) %>%
+  do({
+    roc_obj = roc(.$true_y, .$calib_prob_y, levels=c(0, 1), direction="<")
+    data.frame(
+      abx = .$abx[1],
+      auc = round(roc_obj$auc, 3)
+    )
+  })
+
+return(inner_join(roc, ss, by = c('dataset', 'abx')))
+}
+
+get_summary = function(point_est, out_iter) {
+  out = out_iter %>% 
+  group_by(dataset, abx) %>% 
+  summarise(auc_q025 = quantile(auc, 0.025, na.rm=T), auc_q975 = quantile(auc, 0.975, na.rm=T),
+            sens_q025 = quantile(sens, 0.025, na.rm=T), sens_q975 = quantile(sens, 0.975, na.rm=T),
+            spec_q025 = quantile(spec, 0.025, na.rm=T), spec_q975 = quantile(spec, 0.975, na.rm=T),
+            ppv_q025 = quantile(ppv, 0.025, na.rm=T), ppv_q975 = quantile(ppv, 0.975, na.rm=T),
+            npv_q025 = quantile(npv, 0.025, na.rm=T), npv_q975 = quantile(npv, 0.975, na.rm=T),
+            .groups = "drop_last"
+            ) %>% 
+  mutate(auc_ci = paste0("(",sprintf("%.3f", auc_q025), ' - ', sprintf("%.3f", auc_q975),")"),
+         sens_ci = paste0("(",sprintf("%.1f", sens_q025), ' - ', sprintf("%.1f", sens_q975),")"),
+         spec_ci = paste0("(",sprintf("%.1f", spec_q025), ' - ', sprintf("%.1f", spec_q975),")"),
+         ppv_ci = paste0("(",sprintf("%.1f", ppv_q025), ' - ', sprintf("%.1f", ppv_q975),")"),
+         npv_ci = paste0("(",sprintf("%.1f", npv_q025), ' - ', sprintf("%.1f", npv_q975),")")) %>%
+  select(dataset, abx, auc_ci, sens_ci, spec_ci, ppv_ci, npv_ci) %>% 
+  inner_join(point_est, by = c('dataset', 'abx')) %>% 
+  mutate(auc = paste0(sprintf("%.3f", auc), ' ', auc_ci)) %>% 
+  mutate(sens = paste0(sprintf("%.1f", sens), ' ', sens_ci)) %>%
+  mutate(spec = paste0(sprintf("%.1f", spec), ' ', spec_ci)) %>%
+  mutate(ppv = paste0(sprintf("%.1f", ppv), ' ', ppv_ci)) %>%
+  mutate(npv = paste0(sprintf("%.1f", npv), ' ', npv_ci)) %>%
+  select(dataset, abx, auc, sens, spec, ppv, npv)
+  
+  return(out)
+}
+```
+
+
+```{r rows.print=100}
+df_perf = df %>% 
+  select(dataset, abx, true_y, prob_y, calib_prob_y, calib_pred_y) %>% 
+    mutate(abx = factor(str_to_sentence(abx),
+                      levels = c("Amoxicillin", "Co-amoxiclav", "Ceftriaxone", "Piperacillin-tazobactam", "Ciprofloxacin", "Co-trimoxazole", "Gentamicin"))) 
+
+point_est = get_perf(df_perf)
+
+iter = 1000
+out_iter = tibble()
+for (i in 1:iter) {
+  if(i%%100==0) {
+    print(i)
+  }
+  out_iter = bind_rows(out_iter, get_perf(df_perf %>% sample_n(n(), replace = TRUE)) %>% mutate(i_row = i))
+}
+
+a_performance = get_summary(point_est, out_iter)
+a_performance %>% write_csv('data/datasets_performance.csv')
+a_performance
+```
+Merge into combined output
+```{r}
+inner_join(a_resistance, a_performance, by = c('dataset', 'abx')) %>% 
+  select(dataset, abx, n, ast_r, pct_r, auc, sens, spec, ppv, npv) %>% 
+  write_csv('data/datasets_combined_resistance_performance.csv')
+```
+
+
+```{r}
+point_est %>% 
+  filter(dataset %in% c('test1', 'test2', 'test2_extended', 'test2_updated')) %>%
+  inner_join(
+    out_iter %>% 
+    group_by(dataset, abx) %>% 
+    summarise(q025 = quantile(auc, 0.025, na.rm=T), q975 = quantile(auc, 0.975, na.rm=T)) 
+  ) %>% 
+  mutate(dataset = factor(dataset, levels = c('train', 'test1', 'test2', 'test2_extended', 'test2_updated'),
+                        labels = c('Training Dataset (2017-2021)',
+                          'Test Dataset 1 (2022)', 'Test Dataset 2 (2023): No retraining', 'Test Dataset 2 (2023): Full retraining', 
+                                   'Test Dataset 2 (2023): Incremental update'))) %>%
+  ggplot(aes(x=abx, y=auc, ymin=q025, ymax=q975, fill=dataset)) +
+  geom_bar(stat='identity', position='dodge') +
+  geom_errorbar(position=position_dodge(width=0.9), width=0.25, alpha=0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Antibiotic') +
+  ylab('Area under receiver operating curve, AUC') +
+  scale_fill_tableau(name="Dataset") +
+  scale_y_continuous(breaks = seq(0, 1, 0.1))
+
+ggsave('figures/test2_auc_comparison.pdf', width=8, height=5)
+```
+
+
+```{r}
+df_tt = read_csv('data/training_time.csv')
+```
+
+
+```{r}
+df_tt %>% 
+  filter(species==0) %>% 
+    mutate(abx = factor(str_to_sentence(abx),
+                      levels = c("Amoxicillin", "Co-amoxiclav", "Ceftriaxone", "Piperacillin-tazobactam", "Ciprofloxacin", "Co-trimoxazole", "Gentamicin"))) %>%
+  mutate(activity = case_when(
+    train_data == 'train' ~ 'Original model training',
+    train_data == 'train_extended' ~ 'Repeat model training',
+    train_data == 'update_model' ~ 'Incremental model update'
+  )) %>% 
+    mutate(activity = factor(activity,
+                      levels = c("Original model training", "Repeat model training", "Incremental model update"))) %>%
+  ggplot(aes(x=abx, y=time_seconds, fill=activity)) +
+  geom_bar(stat='identity', position='dodge') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Antibiotic') +
+  ylab('Training time (seconds)') +
+  scale_fill_tableau(name="Training activity") 
+ggsave('figures/training_time.pdf', width=8, height=5)
+```
+
+
+
+Repeat setting sensitivity to 80%
+```{r}
+threshold = df_perf %>% 
+  filter(true_y==1) %>% 
+  filter(dataset=="test2") %>% 
+  group_by(abx) %>% 
+  arrange(abx, calib_prob_y) %>% 
+  mutate(row = row_number(), n=n(), pct=round(100*row/n(),1)) %>% 
+  filter(pct>=20) %>%
+  slice(1) %>% 
+  select(abx, calib_threshold=calib_prob_y)
+
+threshold
+```
+
+
+calib
+```{r}
+df_perf2 = df_perf %>% inner_join(threshold) %>% 
+  mutate(calib_pred_y = ifelse(calib_prob_y>=calib_threshold, 1, 0))
+
+point_est = get_perf(df_perf2)
+
+iter = 1000
+out_iter = tibble()
+for (i in 1:iter) {
+  if(i%%100==0) {
+    print(i)
+  }
+  out_iter = bind_rows(out_iter, get_perf(df_perf2 %>% sample_n(n(), replace = TRUE)) %>% mutate(i_row = i))
+}
+
+a_s80 = get_summary(point_est, out_iter)
+a_s80 %>% write_csv('data/datasets_performance_s80.csv')
+a_s80
+```
+
+
+
+# Clinical comparison
+
+## prepare dataset for clinical comparison
+```{r}
+dfa = df %>% 
+  filter(dataset %in% c('train', 'test1', 'test2'))
+```
+
+
+Check starting number of samples
+```{r}
+dfa %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber))
+```
+
+No baseline antibiotics
+```{r}
+dfa %>% 
+  filter(is.na(INFO_BASELINE_ABX_baseline_abx)) %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber)) 
+```
+
+Not treated with a beta-lactam
+```{r}
+dfa %>% 
+  filter(!is.na(INFO_BASELINE_ABX_baseline_abx)) %>% 
+  filter(is.na(INFO_BASELINE_ABX_last_betalactam)) %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber)) 
+```
+
+Neutropenic
+```{r}
+dfa %>% 
+  filter(!is.na(INFO_BASELINE_ABX_baseline_abx)) %>% 
+  filter(!is.na(INFO_BASELINE_ABX_last_betalactam)) %>% 
+  filter(!(INFO_LABS_neutrophils_most_recent_72h>1 | is.na(INFO_LABS_neutrophils_most_recent_72h))) %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber)) 
+```
+Missing ast result for one of the beta-lactams
+```{r}
+dfa %>% 
+  filter(!is.na(INFO_BASELINE_ABX_baseline_abx)) %>% 
+  filter(!is.na(INFO_BASELINE_ABX_last_betalactam)) %>% 
+  filter((INFO_LABS_neutrophils_most_recent_72h>1 | is.na(INFO_LABS_neutrophils_most_recent_72h))) %>% 
+  mutate(OUTCOME_ast_result = ifelse(str_detect(OUTCOME_ast_result, 'I'), 'R', OUTCOME_ast_result)) %>% #recode intermediate results as resistant
+  rename(baseline_abx=INFO_BASELINE_ABX_baseline_abx, ast_s=INFO_BASELINE_AST_baseline_abx_sensitive, ast_r=INFO_BASELINE_AST_baseline_abx_resistant, ast_i=INFO_BASELINE_AST_baseline_abx_intermediate) %>% 
+  # remove patients missing an AST result for one of the baseline antibiotics
+  mutate(ast_all = paste(ast_s, ast_r, ast_i, sep = '|')) %>%
+  filter(!(str_detect(ast_all, 'amoxicillin') &
+             str_detect(ast_all, 'co-amoxiclav') &
+             str_detect(ast_all, 'piperacillin-tazobactam') &
+             str_detect(ast_all, 'ceftriaxone'))) %>% 
+  summarise(n_distinct(pt, index_dt, INFO_accessionnumber)) 
+```
+
+Create comparison dataset
+```{r}
+df_abx = dfa %>% 
+  filter(!is.na(INFO_BASELINE_ABX_baseline_abx)) %>% #remove patients without any recorded baseline antibiotics
+  filter(!is.na(INFO_BASELINE_ABX_last_betalactam)) %>% # restrict to those receiving a common beta-lactam
+  filter(INFO_LABS_neutrophils_most_recent_72h>1 | is.na(INFO_LABS_neutrophils_most_recent_72h)) %>% #exclude neutropenic sepsis
+  mutate(OUTCOME_ast_result = ifelse(str_detect(OUTCOME_ast_result, 'I'), 'R', OUTCOME_ast_result)) %>% #recode intermediate results as resistant
+  rename(baseline_abx=INFO_BASELINE_ABX_baseline_abx, ast_s=INFO_BASELINE_AST_baseline_abx_sensitive, ast_r=INFO_BASELINE_AST_baseline_abx_resistant, ast_i=INFO_BASELINE_AST_baseline_abx_intermediate) %>% 
+  # remove patients missing an AST result for one of the baseline antibiotics
+  mutate(ast_all = paste(ast_s, ast_r, ast_i, sep = '|')) %>%
+  filter((str_detect(ast_all, 'amoxicillin') &
+             str_detect(ast_all, 'co-amoxiclav') &
+             str_detect(ast_all, 'piperacillin-tazobactam') &
+             str_detect(ast_all, 'ceftriaxone'))) %>%
+  mutate(target_abx_in_baseline_abx = ifelse(str_detect(baseline_abx, abx), 1, 0)) %>% 
+  mutate(ast_s_search = str_replace(str_replace_all(ast_s, ',', '|'), "\\+", "\\\\+")) %>% # convert to regexp string, covering comma to | and escaping + in piptaz
+  mutate(active_abx = ifelse(is.na(ast_s) | str_detect(baseline_abx, ast_s_search), 1, 0)) 
+```
+
+```{r}
+df_abx %>% 
+  summarise(n_pt=n_distinct(pt), n_bc=n_distinct(pt, index_dt, INFO_accessionnumber))
+```
+```{r}
+df_abx %>% 
+  group_by(dataset=ifelse(dataset=="train", "train", "test")) %>% 
+  summarise(n_pt=n_distinct(pt), n_bc=n_distinct(pt, index_dt, INFO_accessionnumber))
+```
+
+Resistance rate to mero
+```{r}
+df_abx %>% select(dataset, pt, index_dt, INFO_accessionnumber, ast_r) %>% unique() %>% 
+  filter(str_detect(ast_r, 'meropenem')) %>% 
+  group_by(dataset) %>% 
+  summarise(n_bc_r_mero=n_distinct(pt, index_dt, INFO_accessionnumber))
+```
+
+Collapse dataset to one row per blood culture
+```{r}
+pt_list = df_abx %>% 
+  filter(abx=="co-amoxiclav") %>%
+  select(dataset, pt, index_dt, INFO_accessionnumber, baseline_abx, active_abx, ast_s, ast_i, ast_r, last_betalactam=INFO_BASELINE_ABX_last_betalactam) %>%
+    mutate(baseline_abx_gp = case_when(
+    str_detect(last_betalactam, 'meropenem|ertapenem') ~ 'carbapenem',
+    str_detect(last_betalactam, 'piperacillin-tazobactam') ~ 'piperacillin-tazobactam',
+    str_detect(last_betalactam, 'ceftriaxone') ~ 'ceftriaxone',
+    str_detect(last_betalactam, 'co-amoxiclav') ~ 'co-amoxiclav',
+    str_detect(last_betalactam, 'amoxicillin') ~ 'amoxicillin',
+    TRUE ~ 'other'
+  )) %>% 
+  filter(baseline_abx_gp != 'other') %>%
+  mutate(ast_s_search = str_replace_all(ast_s, ',', '|')) %>%
+  mutate(active_betalactam = ifelse(str_detect(last_betalactam, ast_s_search), 1, 0))
+```
+
+```{r rows.print=100}
+pt_list = pt_list %>% 
+  mutate(rx = case_when(
+    active_betalactam == 0 ~ 'under_treated',
+    baseline_abx_gp == 'amoxicillin' & active_betalactam == 1 ~ 'optimal',
+    baseline_abx_gp == 'co-amoxiclav' & active_betalactam == 1 & str_detect('amoxicillin', ast_s_search) ~ 'over_treated',
+    baseline_abx_gp == 'co-amoxiclav' & active_betalactam == 1 & !str_detect('amoxicillin', ast_s_search) ~ 'optimal',
+    baseline_abx_gp == 'ceftriaxone' & active_betalactam == 1 & str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'over_treated',
+    baseline_abx_gp == 'ceftriaxone' & active_betalactam == 1 & !str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'optimal',
+    baseline_abx_gp == 'piperacillin-tazobactam' & active_betalactam == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'over_treated',
+    baseline_abx_gp == 'piperacillin-tazobactam' & active_betalactam == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'optimal',
+    baseline_abx_gp == 'carbapenem' & active_betalactam == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'over_treated',
+    baseline_abx_gp == 'carbapenem' & active_betalactam == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'optimal',
+    TRUE ~ 'other'
+  )) %>% 
+  mutate(baseline_abx_gp = factor(baseline_abx_gp, levels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-tazobactam', 'carbapenem'))) %>% 
+  mutate(baseline_abx_gp_plot = factor(baseline_abx_gp, 
+                                  levels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-tazobactam', 'carbapenem'),
+                                  labels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-\ntazobactam', 'carbapenem'))) %>% 
+  mutate(optimal_rx = case_when(
+    str_detect('amoxicillin', ast_s_search) ~ 'amoxicillin',
+    str_detect('co-amoxiclav', ast_s_search) ~ 'co-amoxiclav',
+    str_detect('ceftriaxone', ast_s_search) ~ 'ceftriaxone',
+    str_detect('piperacillin-tazobactam', ast_s_search) ~ 'piperacillin-tazobactam',
+    TRUE ~ 'carbapenem'
+  )) %>% 
+  mutate(optimal_rx = factor(optimal_rx, levels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-tazobactam', 'carbapenem'))) %>% 
+  mutate(optimal_rx_plot = factor(optimal_rx, levels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-tazobactam', 'carbapenem'),
+                                  labels = c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-\ntazobactam', 'carbapenem')))
+```
+
+AST summary
+```{r}
+dfa %>% 
+  inner_join(pt_list %>% select(pt, index_dt, INFO_accessionnumber, dataset)) %>%
+  group_by(abx) %>% 
+  summarise(n=n(), n_resistant=sum(true_y), percent_resistant=round(100*n_resistant/n))
+```
+
+Any active treatment?
+```{r}
+pt_list %>% count(active_abx) %>% mutate(pct = n/sum(n))
+```
+
+## Clinician prescribing plots
+baseline beta-lactam given and whether over or under treated vs AST results
+```{r}
+p1 = pt_list %>% 
+  count(baseline_abx_gp_plot, rx) %>% 
+  ggplot(aes(x = baseline_abx_gp_plot, y = n, fill = str_replace(rx, '_', ' '))) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  xlab("Baseline beta-lactam given") +
+  ylab("Frequency") +
+  scale_fill_discrete(name="Treatment given") +
+  theme(legend.position = "top")
+p1
+```
+
+```{r}
+pt_list %>% count(rx) %>% mutate(pct = n/sum(n))
+```
+
+
+Optimal treatment based on AST results
+```{r}
+p2 = pt_list %>% 
+  count(optimal_rx_plot) %>% 
+  mutate(pct = n/sum(n)) %>% 
+  ggplot(aes(x = optimal_rx_plot, y = n)) +
+  geom_bar(stat = 'identity') +
+  xlab("Optimal beta-lactam based on\nantimicrobial susceptibilty results") +
+  ylab("Frequency") 
+p2
+```
+
+
+Now compare actual treatment given to optimal treatment based on AST results
+```{r}
+p3 = pt_list %>% 
+  count(optimal_rx_plot, baseline_abx_gp, active_betalactam) %>%
+  ggplot(aes(x = optimal_rx_plot, y = n, fill = baseline_abx_gp)) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  scale_alpha_manual(name="Activity of beta-lactam given", values = c(0.5, 1)) +
+  scale_fill_tableau(name="Baseline beta-lactam given") +
+  xlab("Optimal beta-lactam based on antimicrobial susceptibilty results") +
+  ylab("Frequency") +
+  facet_wrap(~factor(active_betalactam, levels=c(0, 1), labels = c('Treatment given inactive', 'Treatment given active'))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p3
+```
+
+```{r}
+r1 = cowplot::plot_grid(p1, p2, nrow = 1, labels = c('A', 'B'))
+cowplot::plot_grid(r1, p3, nrow = 2, labels = c('', 'C'))
+ggsave('figures/clinician_prescribing.pdf', width = 9.5, height = 8)
+```
+
+
+Can also calculate the implied sensitivity of clinician prescribing, for R to an abx, how many patients given active beta-lactam
+
+
+```{r}
+bind_rows(
+  pt_list %>% 
+  filter(str_detect(ast_r, 'amoxicillin')) %>% 
+  summarise(n=n(), n_active_bl = sum(last_betalactam!='amoxicillin'), pct_active_bl = round(100*n_active_bl/n,0)) %>% 
+  mutate(abx='amoxicillin') %>% 
+  select(abx, n, n_active_bl, pct_active_bl),
+  
+  pt_list %>% 
+  filter(str_detect(ast_r, 'co-amoxiclav')) %>% 
+  summarise(n=n(), n_active_bl = sum(!last_betalactam %in% c('amoxicillin', 'co-amoxiclav')), pct_active_bl = round(100*n_active_bl/n,0)) %>% 
+  mutate(abx='co-amoxiclav') %>% 
+  select(abx, n, n_active_bl, pct_active_bl),
+  
+  pt_list %>% 
+  filter(str_detect(ast_r, 'ceftriaxone')) %>% 
+  summarise(n=n(), n_active_bl = sum(!last_betalactam %in% c('amoxicillin', 'co-amoxiclav', 'ceftriaxone')), pct_active_bl = round(100*n_active_bl/n,0)) %>% 
+  mutate(abx='ceftriaxone') %>% 
+  select(abx, n, n_active_bl, pct_active_bl),
+  
+  pt_list %>% 
+  filter(str_detect(ast_r, 'piperacillin-tazobactam')) %>% 
+  summarise(n=n(), n_active_bl = sum(!last_betalactam %in% c('amoxicillin', 'co-amoxiclav', 'ceftriaxone', 'piperacillin-tazobactam')), pct_active_bl = round(100*n_active_bl/n,0)) %>% 
+  mutate(abx='piperacillin-tazobactam') %>% 
+  select(abx, n, n_active_bl, pct_active_bl)
+)
+
+```
+
+
+
+
+```{r}
+df_ast %>% 
+  filter(dataset != 'train') %>%
+  mutate(filter_threshold = case_when(
+    abx == "amoxicillin" ~ 0.385,
+    abx == "co-amoxiclav" ~ 0.47692,
+    abx == "ceftriaxone" ~ 0.12689,
+    abx == "piperacillin-tazobactam" ~ 0.27
+  )) %>%
+  filter(!is.na(filter_threshold))  %>%
+  group_by(abx) %>% 
+  summarise(n=n(), n_r = sum(true_y==1), n_s = n-n_r, 
+            pred_r_if_r = sum(true_y==1 & calib_pred_y>=filter_threshold), sens = round(100*pred_r_if_r/n_r,1),
+            pred_s_if_s = sum(true_y==0 & calib_pred_y<filter_threshold), spec = round(100*pred_s_if_s/n_s,1)
+            )
+```
+
+
+
+
+## Join AST results to predictions
+get ast results and predictions
+```{r}
+df_ast = df %>% 
+  select(abx, dataset, pt, index_dt, INFO_accessionnumber, calib_pred_y, calib_prob_y, true_y) %>%
+  unique()
+```
+
+pivot to wide format
+```{r}
+# pivot wider
+df_ast_wider = df_ast %>% 
+  pivot_wider(names_from = abx, values_from = c(calib_pred_y, calib_prob_y, true_y))
+```
+
+```{r}
+# join back to pt_list
+df_analysis = pt_list %>% 
+  inner_join(df_ast_wider, by = c('dataset', 'pt', 'index_dt', 'INFO_accessionnumber'))
+#df_analysis
+```
+
+... Now have df_analysis with one row per blood culture for use in subsequent analyses.
+
+
+## Scenario 1 - match to beta-lactam use
+
+### Scenario 1 - training data
+
+Target antibiotic use to beta-lactam use during training period
+```{r}
+df_analysis %>% 
+  filter(dataset == 'train') %>%
+  count(baseline_abx_gp)
+```
+
+Manually adjust thresholds using training data - to get same antibiotic use, and create df_suggest_train from df_analysis
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset == 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.441 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.479 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.1345 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.285 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest_train %>% count(antibiotic=suggest)
+```
+
+
+Compare whether actual beta-lactam or suggested beta-lactam is sensitive within training data
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),1),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),1))
+```
+
+Report degree of over treatment
+```{r}
+classify_rx = function(df) {
+  df %>% 
+  mutate(suggest_rx = case_when(
+    prediction_active == 0 ~ 'under_treated',
+    suggest == 'amoxicillin' & prediction_active == 1 ~ 'optimal',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & str_detect('amoxicillin', ast_s_search) ~ 'over_treated',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & !str_detect('amoxicillin', ast_s_search) ~ 'optimal',
+    suggest == 'ceftriaxone' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'over_treated',
+    suggest == 'ceftriaxone' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'optimal',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'over_treated',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'optimal',
+    suggest == 'carbapenem' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'over_treated',
+    suggest == 'carbapenem' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'optimal'
+  ))
+}
+```
+
+Over treatment with predictor
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+... vs actual
+```{r}
+df_analysis %>% 
+  filter(dataset == 'train') %>%
+  count(rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+
+### Scenario 1 - test data
+Apply the thresholds above to the test data
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.441 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.479 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.1345 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.285 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+```
+
+Suggested antibiotic use
+```{r}
+df_suggest_train %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+... vs. actual
+```{r}
+df_analysis %>% 
+  filter(dataset != 'train') %>%
+  count(baseline_abx_gp) %>% mutate(pct = round(100*n/sum(n))) 
+```
+Performance of suggestions vs actual
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),0),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),0))
+```
+
+Degree of over treatment
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+... vs actual
+```{r}
+df_analysis %>% 
+  filter(dataset != 'train') %>%
+  count(rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+Add sankey plot
+```{r}
+# install.packages("remotes")
+# remotes::install_github("davidsjoberg/ggsankey")
+library(ggsankey)
+```
+
+
+```{r}
+dfp = df_suggest_train %>% classify_rx %>% 
+  mutate(suggest_rx = paste0('Prediction: ', str_replace(str_to_sentence(suggest_rx), "_", "-"))) %>%
+  mutate(rx = str_replace(str_to_sentence(rx), "_", "-")) %>%
+  select(`Clinician treatment`=rx, `Model prediction`=suggest_rx) %>% 
+  make_long(`Clinician treatment`, `Model prediction`)
+
+dfpn = dfp %>%
+  group_by(node) %>%
+  tally() %>% 
+  mutate(pred = ifelse(str_detect(node, 'Prediction'), 1, 0)) %>%
+  group_by(pred) %>% 
+  mutate(n_gp = sum(n), pct = round(100*n/n_gp,0))
+  
+dfp2 = merge(dfp, dfpn, by.x = 'node', by.y = 'node', all.x = TRUE)
+
+p1 = dfp2 %>%
+  mutate(fill_node = str_replace(node, "Prediction: ", "")) %>% 
+  ggplot(aes(x = x, next_x = next_x, node=node, next_node=next_node, fill=fill_node, label=paste0(node, " (", pct, "%)"))) +
+  geom_sankey() +
+  xlab("") +
+  theme_minimal() +
+  theme(axis.title = element_blank()
+                  , axis.text.y = element_blank()
+                  , axis.ticks = element_blank()  
+                  , panel.grid = element_blank()) +
+  scale_fill_tableau(name="Clincian Treatment") +
+  theme(legend.position = "none") +
+  geom_sankey_label(size = 3, color = "black", fill= "white", hjust = 0.5)
+p1
+```
+
+```{r}
+dfp = df_suggest_train %>% 
+  mutate(last_betalactam = ifelse(last_betalactam=="meropenem" | last_betalactam=="ertapenem", "carbapenem", last_betalactam)) %>%
+  mutate(last_betalactam = str_to_sentence(last_betalactam)) %>%
+  mutate(suggest = str_to_sentence(suggest)) %>% 
+  mutate(last_betalactam = factor(last_betalactam, levels = c('Amoxicillin', 'Co-amoxiclav', 'Ceftriaxone', 'Piperacillin-tazobactam', 'Carbapenem'))) %>%
+  mutate(suggest = factor(suggest, levels = c('Amoxicillin', 'Co-amoxiclav', 'Ceftriaxone', 'Piperacillin-tazobactam', 'Carbapenem'),
+                          labels = c('Prediction: Amoxicillin', 'Prediction: Co-amoxiclav', 'Prediction: Ceftriaxone', 
+                                     'Prediction: Piperacillin-tazobactam', 'Prediction: Carbapenem'))) %>%
+  select(`Clinician treatment`=last_betalactam, `Model prediction`=suggest) %>%
+  make_long(`Clinician treatment`, `Model prediction`) %>% 
+  mutate(node = factor(node, levels = c('Amoxicillin', 'Co-amoxiclav', 'Ceftriaxone', 'Piperacillin-tazobactam', 'Carbapenem',
+                                        'Prediction: Amoxicillin', 'Prediction: Co-amoxiclav', 'Prediction: Ceftriaxone', 
+                                     'Prediction: Piperacillin-tazobactam', 'Prediction: Carbapenem'))) %>%
+  mutate(next_node = factor(next_node, levels = c('Prediction: Amoxicillin', 'Prediction: Co-amoxiclav', 'Prediction: Ceftriaxone', 
+                                     'Prediction: Piperacillin-tazobactam', 'Prediction: Carbapenem')))
+
+dfpn = dfp %>%
+  group_by(node) %>%
+  tally() %>% 
+  mutate(pred = ifelse(str_detect(node, 'Prediction'), 1, 0)) %>%
+  group_by(pred) %>% 
+  mutate(n_gp = sum(n), pct = round(100*n/n_gp,0))
+
+dfp2 = merge(dfp, dfpn, by.x = 'node', by.y = 'node', all.x = TRUE)
+
+p2 = dfp2 %>% 
+  mutate(fill_node = str_replace(node, "Prediction: ", "")) %>%
+  ggplot(aes(x = x, next_x = next_x, node=node, next_node=next_node, fill=fill_node, label=paste0(node," (", pct, "%)"))) +
+  geom_sankey() +
+  xlab("") +
+  theme_minimal() +
+  theme(axis.title = element_blank()
+                  , axis.text.y = element_blank()
+                  , axis.ticks = element_blank()  
+                  , panel.grid = element_blank()) +
+  scale_fill_tableau(name="Clincian Treatment") +
+  theme(legend.position = "none") +
+  geom_sankey_label(size = 3, color = "black", fill= "white", hjust = 0.5)
+p2
+```
+
+```{r}
+plot_grid(p1, p2, nrow = 1, labels = c('A', 'B'))
+ggsave('figures/clinical_vs_model.pdf', width = 10, height = 5)
+```
+
+
+
+
+
+
+## Scenario 2 - train algorithm against optimal tretment thresholds
+```{r}
+pt_list %>% 
+  filter(dataset=="train") %>% 
+  count(optimal_rx)
+```
+
+```{r}
+df_suggest = df_analysis %>% 
+  filter(dataset == 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.5452 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.3845 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.161 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.16 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest %>% count(antibiotic=suggest)
+```
+
+## check peformance on test data
+Suggestions
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.5452 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.3845 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.161 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.16 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest_train %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+Performance of suggestions vs actual
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),0),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),0))
+```
+
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+
+Allow for 20% error margin
+```{r}
+opt_list = pt_list %>% 
+  filter(dataset=="train") %>% 
+  count(optimal_rx) %>% 
+  mutate(n_optimal = ifelse(optimal_rx=="amoxicillin" | optimal_rx=="co-amoxiclav", round(0.8*n), n)) %>% 
+  mutate(upscale=1.312) %>% 
+  mutate(final_n = ifelse(optimal_rx=="amoxicillin" | optimal_rx=="co-amoxiclav", n_optimal, round(n*upscale)))
+
+opt_list
+
+opt_list %>% summarise(sum(n), sum(final_n))
+```
+
+
+```{r}
+opt_list %>% select(optimal_rx, final_n)
+```
+
+```{r}
+df_suggest = df_analysis %>% 
+  filter(dataset == 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.52371 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.32762 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.1358 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.145 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+
+## check peformance on test data
+Suggestions
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.52371 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.32762 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.1358 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.145 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest_train %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+Performance of suggestions vs actual
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),0),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),0))
+```
+
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+# scenario 3 - match over-treatment rates
+
+```{r}
+pt_list %>% 
+  filter(dataset == 'train') %>% 
+  count(rx) %>% 
+  mutate(pct = round(100*n/sum(n)))
+```
+
+Target - no more than 1017 over-treated, try to minimise under-treatment
+
+```{r}
+df_suggest = df_analysis %>% 
+  filter(dataset == 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.2 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.375 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.58 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.3 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest)) %>% 
+  mutate(suggest_rx = case_when(
+    prediction_active == 0 ~ 'under_treated',
+    suggest == 'amoxicillin' & prediction_active == 1 ~ 'optimal',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & str_detect('amoxicillin', ast_s_search) ~ 'over_treated',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & !str_detect('amoxicillin', ast_s_search) ~ 'optimal',
+    suggest == 'ceftriaxone' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'over_treated',
+    suggest == 'ceftriaxone' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'optimal',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'over_treated',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'optimal',
+    suggest == 'carbapenem' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'over_treated',
+    suggest == 'carbapenem' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'optimal'
+  )) 
+df_suggest %>% 
+count(suggest_rx) %>% 
+    mutate(pct = round(100*n/sum(n)))
+```
+
+
+## check peformance on test data
+Suggestions
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.2 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.375 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.58 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.3 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest_train %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+Performance of suggestions vs actual
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),0),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),0))
+```
+
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+
+
+
+Naive move everyone to at least ceftriaxone
+```{r}
+df_suggest = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    baseline_abx_gp %in% c('amoxicillin', 'co-amoxiclav', 'ceftriaxone') ~ 'ceftriaxone',
+    baseline_abx_gp == "piperacillin-tazobactam" ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem')) %>%
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest)) %>% 
+  mutate(suggest_rx = case_when(
+    prediction_active == 0 ~ 'under_treated',
+    suggest == 'amoxicillin' & prediction_active == 1 ~ 'optimal',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & str_detect('amoxicillin', ast_s_search) ~ 'over_treated',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & !str_detect('amoxicillin', ast_s_search) ~ 'optimal',
+    suggest == 'ceftriaxone' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'over_treated',
+    suggest == 'ceftriaxone' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'optimal',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'over_treated',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'optimal',
+    suggest == 'carbapenem' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'over_treated',
+    suggest == 'carbapenem' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'optimal'
+  )) 
+
+df_suggest %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+```{r}
+df_suggest %>% summarise(sum(prediction_active), n=n(), pct=round(100*sum(prediction_active)/n(),0))
+```
+
+
+```{r}
+df_suggest %>% count(suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+
+# scenario 4 - match under-treatment rates, 
+
+target under-treatment of 102
+
+```{r}
+df_suggest = df_analysis %>% 
+  filter(dataset == 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.4 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.255 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.6 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.3 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest)) %>% 
+  mutate(suggest_rx = case_when(
+    prediction_active == 0 ~ 'under_treated',
+    suggest == 'amoxicillin' & prediction_active == 1 ~ 'optimal',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & str_detect('amoxicillin', ast_s_search) ~ 'over_treated',
+    suggest == 'co-amoxiclav' & prediction_active == 1 & !str_detect('amoxicillin', ast_s_search) ~ 'optimal',
+    suggest == 'ceftriaxone' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'over_treated',
+    suggest == 'ceftriaxone' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav', ast_s_search) ~ 'optimal',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'over_treated',
+    suggest == 'piperacillin-tazobactam' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone', ast_s_search) ~ 'optimal',
+    suggest == 'carbapenem' & prediction_active == 1 & str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'over_treated',
+    suggest == 'carbapenem' & prediction_active == 1 & !str_detect('amoxicillin|co-amoxiclav|ceftriaxone|piperacillin-tazobactam', ast_s_search) ~ 'optimal'
+  )) 
+df_suggest %>% 
+count(suggest_rx) %>% 
+    mutate(pct = round(100*n/sum(n)))
+```
+
+
+## check peformance on test data
+Suggestions
+```{r}
+df_suggest_train = df_analysis %>% 
+  filter(dataset != 'train') %>%
+  mutate(suggest = case_when(
+    calib_prob_y_amoxicillin < 0.4 ~ 'amoxicillin',
+    `calib_prob_y_co-amoxiclav` < 0.255 ~ 'co-amoxiclav',
+    calib_prob_y_ceftriaxone < 0.6 ~ 'ceftriaxone',
+    `calib_prob_y_piperacillin-tazobactam` < 0.3 ~ 'piperacillin-tazobactam',
+    TRUE ~ 'meropenem'
+  )) %>% 
+  mutate(prediction_active = ifelse(str_detect(ast_s, suggest), 1, 0)) %>% 
+  mutate(suggest = ifelse(suggest == "meropenem", "carbapenem", suggest))
+df_suggest_train %>% count(antibiotic=suggest) %>% mutate(pct = round(100*n/sum(n)))
+```
+
+Performance of suggestions vs actual
+```{r}
+df_suggest_train %>% 
+  summarise(n(), n_active = sum(active_abx), n_active_bl = sum(active_betalactam), pct_active_bl = round(100*sum(active_betalactam)/n(),0),
+            n_prediction_active = sum(prediction_active), pct_prediction_active = round(100*sum(prediction_active)/n(),0))
+```
+
+```{r}
+df_suggest_train %>% classify_rx %>% count(suggest_rx) %>% mutate(pct = round(100*n/sum(n)))
+```
+

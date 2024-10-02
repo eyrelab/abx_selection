@@ -1,0 +1,107 @@
+---
+title: "Check calibration performance"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(pROC)
+library(ggthemes)
+library(cowplot)
+theme_set(theme_light())
+```
+
+```{r}
+get_summary_data = function(infile) {
+  
+  df_all = read_csv(infile)
+  
+  df = df_all %>% 
+  mutate(true_y = ifelse(OUTCOME_ast_result == 'R', 1, 0)) %>%
+  rename(abx = INFO_antibiotic)
+  return(df)
+}
+
+```
+
+
+```{r}
+df1 = get_summary_data('data/predictions_co-amoxiclav.csv')
+df2 = get_summary_data('data/predictions_amoxicillin.csv')
+df3 = get_summary_data('data/predictions_piperacillin-tazobactam.csv')
+df4 = get_summary_data('data/predictions_ceftriaxone.csv')
+df5 = get_summary_data('data/predictions_ciprofloxacin.csv')
+df6 = get_summary_data('data/predictions_co-trimoxazole.csv')
+df7 = get_summary_data('data/predictions_gentamicin.csv')
+```
+
+```{r}
+# merge df
+df = bind_rows(df1, df2, df3, df4, df5, df6, df7) %>% 
+  filter(dataset %in% c('train', 'test1', 'test2'))
+```
+
+
+
+```{r}
+p1 = df %>% filter(dataset == "train") %>% 
+  select(dataset, abx, true_y, prob_y, calib_prob_y) %>% 
+  pivot_longer(cols = c(prob_y, calib_prob_y), names_to = "type", values_to = "p") %>% 
+  mutate(p_group = (round(p*10, 0)/10)) %>% 
+  group_by(abx, p_group, type) %>%
+  summarise(n = n(), pos = sum(true_y), mean_true_y = mean(true_y), mean_p = mean(p)) %>% 
+  rowwise() %>%
+  # get binomial confidence interval
+  mutate(ll = binom.test(pos, n)$conf.int[1],
+         ul = binom.test(pos, n)$conf.int[2]) %>%
+  ungroup() %>%
+  mutate(type = factor(type, levels = c("prob_y", "calib_prob_y"), labels=c("Uncalibrated", "Calibrated"))) %>%
+  ggplot(aes(x = p_group, y = mean_true_y, ymin = ll, ymax=ul, color=type, linetype=type)) +
+  geom_point() +
+  geom_line() +
+  geom_pointrange() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  xlab("Predicted probability (training data)") +
+  ylab("Event rate") +
+  scale_color_discrete(name="Prediction") +
+  scale_linetype_discrete(name="Prediction") +
+  facet_wrap(~str_to_sentence(abx), ncol=3) +
+  theme(legend.position = "bottom")
+p1
+```
+
+
+```{r}
+p2 = df %>% filter(dataset != "train") %>% 
+  select(dataset, abx, true_y, prob_y, calib_prob_y) %>% 
+  pivot_longer(cols = c(prob_y, calib_prob_y), names_to = "type", values_to = "p") %>% 
+  mutate(p_group = (round(p*10, 0)/10)) %>% 
+  group_by(abx, p_group, type) %>%
+  summarise(n = n(), pos = sum(true_y), mean_true_y = mean(true_y), mean_p = mean(p)) %>% 
+  rowwise() %>%
+  # get binomial confidence interval
+  mutate(ll = binom.test(pos, n)$conf.int[1],
+         ul = binom.test(pos, n)$conf.int[2]) %>%
+  ungroup() %>%
+  mutate(type = factor(type, levels = c("prob_y", "calib_prob_y"), labels=c("Uncalibrated", "Calibrated"))) %>%
+  ggplot(aes(x = p_group, y = mean_true_y, ymin=ll, ymax=ul, color=type, linetype=type)) +
+  geom_point() +
+  geom_line() +
+  geom_pointrange() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  xlab("Predicted probability (test data)") +
+  ylab("Event rate") +
+  scale_color_discrete(name="Prediction") +
+  scale_linetype_discrete(name="Prediction") +
+  facet_wrap(~str_to_sentence(abx), ncol=3) +
+  theme(legend.position = "bottom")
+
+p2
+```
+
+```{r}
+plot_grid(p1, p2, nrow=2, labels=c("A", "B"))
+ggsave("figures/calibration.pdf", width=8, height=10)
+```
+

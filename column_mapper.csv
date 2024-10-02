@@ -1,0 +1,188 @@
+﻿orig_name,new_name_group,new_name_stem,new_name
+ABX_abx_courses_amoxicillin_last_365d,Antibiotics,Amoxicillin courses in last year,Antibiotics: Amoxicillin courses in last year
+ABX_abx_courses_amoxicillin_time_last_365d,Antibiotics,Time since last amoxicillin course,Antibiotics: Time since last amoxicillin course
+ABX_abx_courses_any_last_365d,Antibiotics,Total antibiotic courses in last year,Antibiotics: Total antibiotic courses in last year
+ABX_abx_courses_cefalexin_last_365d,Antibiotics,Cefalexin courses in last year,Antibiotics: Cefalexin courses in last year
+ABX_abx_courses_cefalexin_time_last_365d,Antibiotics,Time since last cefalexin course,Antibiotics: Time since last cefalexin course
+ABX_abx_courses_ceftriaxone_last_365d,Antibiotics,Ceftriaxone courses in last year,Antibiotics: Ceftriaxone courses in last year
+ABX_abx_courses_ceftriaxone_time_last_365d,Antibiotics,Time since last ceftriaxone course,Antibiotics: Time since last ceftriaxone course
+ABX_abx_courses_ciprofloxacin_last_365d,Antibiotics,Ciprofloxacin courses in last year,Antibiotics: Ciprofloxacin courses in last year
+ABX_abx_courses_ciprofloxacin_time_last_365d,Antibiotics,Time since last ciprofloaxin course,Antibiotics: Time since last ciprofloaxin course
+ABX_abx_courses_co_amoxiclav_last_365d,Antibiotics,Co-amoxiclav courses in last year,Antibiotics: Co-amoxiclav courses in last year
+ABX_abx_courses_co_amoxiclav_time_last_365d,Antibiotics,Time since last co-amoxclav course,Antibiotics: Time since last co-amoxclav course
+ABX_abx_courses_co_trimoxazole_last_365d,Antibiotics,Co-trimoxazole courses in last year,Antibiotics: Co-trimoxazole courses in last year
+ABX_abx_courses_co_trimoxazole_time_last_365d,Antibiotics,Time since last co-trimoxazole course,Antibiotics: Time since last co-trimoxazole course
+ABX_abx_courses_ertapenem_last_365d,Antibiotics,Ertapenem courses in last year,Antibiotics: Ertapenem courses in last year
+ABX_abx_courses_ertapenem_time_last_365d,Antibiotics,Time since last ertapenem course,Antibiotics: Time since last ertapenem course
+ABX_abx_courses_gentamicin_last_365d,Antibiotics,Gentamicin courses in last year,Antibiotics: Gentamicin courses in last year
+ABX_abx_courses_gentamicin_time_last_365d,Antibiotics,Time since last gentamicin course,Antibiotics: Time since last gentamicin course
+ABX_abx_courses_meropenem_last_365d,Antibiotics,Meropenem courses in last year,Antibiotics: Meropenem courses in last year
+ABX_abx_courses_meropenem_time_last_365d,Antibiotics,Time since last meropenem,Antibiotics: Time since last meropenem
+ABX_abx_courses_nitrofurantoin_last_365d,Antibiotics,Nitrofurantoin courses in last year,Antibiotics: Nitrofurantoin courses in last year
+ABX_abx_courses_nitrofurantoin_time_last_365d,Antibiotics,Time since last nitrofuratoin,Antibiotics: Time since last nitrofuratoin
+ABX_abx_courses_piperacillin_tazobactam_last_365d,Antibiotics,Piperacillin-tazobactam courses in last year,Antibiotics: Piperacillin-tazobactam courses in last year
+ABX_abx_courses_piperacillin_tazobactam_time_last_365d,Antibiotics,Time since last piperacillin-tazobactam,Antibiotics: Time since last piperacillin-tazobactam
+ABX_abx_courses_time_any_last_365d,Antibiotics,Time since last antibiotics,Antibiotics: Time since last antibiotics
+ABX_abx_courses_trimethoprim_last_365d,Antibiotics,Trimethoprim courses in last year,Antibiotics: Trimethoprim courses in last year
+ABX_abx_courses_trimethoprim_time_last_365d,Antibiotics,Time since last trimethoprim,Antibiotics: Time since last trimethoprim
+BASELINE_ABX_INDICATION_abdominal,Clinical syndrome,Abdominal,Clinical syndrome: Abdominal
+BASELINE_ABX_INDICATION_ent,Clinical syndrome,ENT,Clinical syndrome: ENT
+BASELINE_ABX_INDICATION_neurological,Clinical syndrome,Neurological,Clinical syndrome: Neurological
+BASELINE_ABX_INDICATION_no_specific_source,Clinical syndrome,No speciifc source,Clinical syndrome: No speciifc source
+BASELINE_ABX_INDICATION_not_informative,Clinical syndrome,Non informative text,Clinical syndrome: Non informative text
+BASELINE_ABX_INDICATION_orthopaedic,Clinical syndrome,Orthopedic,Clinical syndrome: Orthopedic
+BASELINE_ABX_INDICATION_other_specific,Clinical syndrome,Other specific,Clinical syndrome: Other specific
+BASELINE_ABX_INDICATION_prophylaxis,Clinical syndrome,Prophylaxis,Clinical syndrome: Prophylaxis
+BASELINE_ABX_INDICATION_respiratory,Clinical syndrome,Respiratory,Clinical syndrome: Respiratory
+BASELINE_ABX_INDICATION_skin_soft_tissue,Clinical syndrome,Skin and soft tissue,Clinical syndrome: Skin and soft tissue
+BASELINE_ABX_INDICATION_uncertaincy,Clinical syndrome,Uncertaincy,Clinical syndrome: Uncertaincy
+BASELINE_ABX_INDICATION_urinary,Clinical syndrome,Urinary,Clinical syndrome: Urinary
+BASELINE_MICRO_bc_resistance_rate_amoxicillin,Population resistance rate,"Blood cultures, amoxicillin","Population resistance rate: Blood cultures, amoxicillin"
+BASELINE_MICRO_bc_resistance_rate_ceftriaxone,Population resistance rate,"Blood cultures, ceftriaxone","Population resistance rate: Blood cultures, ceftriaxone"
+BASELINE_MICRO_bc_resistance_rate_ciprofloxacin,Population resistance rate,"Blood cultures, ciprofloxacin","Population resistance rate: Blood cultures, ciprofloxacin"
+BASELINE_MICRO_bc_resistance_rate_co-amoxiclav,Population resistance rate,"Blood cultures, co-amoxiclav","Population resistance rate: Blood cultures, co-amoxiclav"
+BASELINE_MICRO_bc_resistance_rate_co-trimoxazole,Population resistance rate,"Blood cultures, co-trimoxazole","Population resistance rate: Blood cultures, co-trimoxazole"
+BASELINE_MICRO_bc_resistance_rate_ertapenem,Population resistance rate,"Blood cultures, ertapenem","Population resistance rate: Blood cultures, ertapenem"
+BASELINE_MICRO_bc_resistance_rate_gentamicin,Population resistance rate,"Blood cultures, gentamicin","Population resistance rate: Blood cultures, gentamicin"
+BASELINE_MICRO_bc_resistance_rate_meropenem,Population resistance rate,"Blood cultures, meropenem","Population resistance rate: Blood cultures, meropenem"
+BASELINE_MICRO_bc_resistance_rate_piperacillin-tazobactam,Population resistance rate,"Blood cultures, piperacillin-tazobactam","Population resistance rate: Blood cultures, piperacillin-tazobactam"
+BASELINE_MICRO_resistance_rate_amoxicillin,Population resistance rate,"Any sample, amoxicillin","Population resistance rate: Any sample, amoxicillin"
+BASELINE_MICRO_resistance_rate_ceftriaxone,Population resistance rate,"Any sample, ceftriaxone","Population resistance rate: Any sample, ceftriaxone"
+BASELINE_MICRO_resistance_rate_ciprofloxacin,Population resistance rate,"Any sample, ciprofloxacin","Population resistance rate: Any sample, ciprofloxacin"
+BASELINE_MICRO_resistance_rate_co-amoxiclav,Population resistance rate,"Any sample, co-amoxiclav","Population resistance rate: Any sample, co-amoxiclav"
+BASELINE_MICRO_resistance_rate_co-trimoxazole,Population resistance rate,"Any sample, co-trimoxazole","Population resistance rate: Any sample, co-trimoxazole"
+BASELINE_MICRO_resistance_rate_ertapenem,Population resistance rate,"Any sample, ertapenem","Population resistance rate: Any sample, ertapenem"
+BASELINE_MICRO_resistance_rate_gentamicin,Population resistance rate,"Any sample, gentamicin","Population resistance rate: Any sample, gentamicin"
+BASELINE_MICRO_resistance_rate_meropenem,Population resistance rate,"Any sample, meropenem","Population resistance rate: Any sample, meropenem"
+BASELINE_MICRO_resistance_rate_piperacillin-tazobactam,Population resistance rate,"Any sample, piperacillin-tazobactam","Population resistance rate: Any sample, piperacillin-tazobactam"
+bug_group_Citrobacter spp.,Species,Citrobacter spp,Species: Citrobacter spp
+bug_group_Enterobacter spp.,Species,Enterobacter spp,Species: Enterobacter spp
+bug_group_Escherichia coli,Species,Escherichia coli,Species: Escherichia coli
+bug_group_Klebsiella spp.,Species,Klebsiella spp,Species: Klebsiella spp
+bug_group_Other,Species,Other,Species: Other
+bug_group_Proteus Providencia Morganella spp.,Species,Proteus Providencia Morganella spp,Species: Proteus Providencia Morganella spp
+bug_group_Serratia spp.,Species,Serratia spp,Species: Serratia spp
+COMORBIDITY_charlson_age_adj_comorbidity_score,Comorbidity,Age adjusted Charlson score,Comorbidity: Age adjusted Charlson score
+COMORBIDITY_charlson_aids,Comorbidity,HIV,Comorbidity: HIV
+COMORBIDITY_charlson_ami,Comorbidity,Myocardia infarction,Comorbidity: Myocardia infarction
+COMORBIDITY_charlson_canc,Comorbidity,Cancer,Comorbidity: Cancer
+COMORBIDITY_charlson_cevd,Comorbidity,Cerebrovascular disease,Comorbidity: Cerebrovascular disease
+COMORBIDITY_charlson_chf,Comorbidity,Congestive heart failure,Comorbidity: Congestive heart failure
+COMORBIDITY_charlson_comorbidity_score,Comorbidity,Charlson score,Comorbidity: Charlson score
+COMORBIDITY_charlson_copd,Comorbidity,COPD,Comorbidity: COPD
+COMORBIDITY_charlson_dementia,Comorbidity,Dementia,Comorbidity: Dementia
+COMORBIDITY_charlson_diab,Comorbidity,Uncomplicated diabetes,Comorbidity: Uncomplicated diabetes
+COMORBIDITY_charlson_diabwc,Comorbidity,Complicated diabetes,Comorbidity: Complicated diabetes
+COMORBIDITY_charlson_hp,Comorbidity,Hemiplegia,Comorbidity: Hemiplegia
+COMORBIDITY_charlson_metacanc,Comorbidity,Metastatic cancer,Comorbidity: Metastatic cancer
+COMORBIDITY_charlson_mld,Comorbidity,Mild liver disease,Comorbidity: Mild liver disease
+COMORBIDITY_charlson_msld,Comorbidity,Moderate to severe liver disease,Comorbidity: Moderate to severe liver disease
+COMORBIDITY_charlson_pud,Comorbidity,Peptic ulcer disease,Comorbidity: Peptic ulcer disease
+COMORBIDITY_charlson_pvd,Comorbidity,Peripheral vascular disease,Comorbidity: Peripheral vascular disease
+COMORBIDITY_charlson_rend,Comorbidity,Renal disease,Comorbidity: Renal disease
+COMORBIDITY_charlson_rheumd,Comorbidity,Connective tissue disease,Comorbidity: Connective tissue disease
+DEMOGRAPHICS_age,Demographics,Age,Demographics: Age
+DEMOGRAPHICS_imd,Demographics,Index of multiple deprivation (higher=more deprived),Demographics: Index of multiple deprivation (higher=more deprived)
+DEMOGRAPHICS_sex_F,Demographics,Female,Demographics: Female
+DEMOGRAPHICS_sex_M,Demographics,Male,Demographics: Male
+HCAI_cre_last_yr,AMR infections,CRE in last year,AMR infections: CRE in last year
+HCAI_esbl_last_yr,AMR infections,ESBL in last year,AMR infections: ESBL in last year
+HCAI_esbl_time_last_yr,AMR infections,Time since last ESBL,AMR infections: Time since last ESBL
+HCAI_mrsa_last_yr,AMR infections,MRSA in last year,AMR infections: MRSA in last year
+HCAI_vre_last_yr,AMR infections,VRE in last year,AMR infections: VRE in last year
+INDEX_DATE_index_dt_hour,Index date,Hour of day blood culture taken,Index date: Hour of day blood culture taken
+LABS_alt_count_72h,Labs,Liver function count in last 72 hours,Labs: Liver function count in last 72 hours
+LABS_bg_lactate_count_72h,Labs,Blood gas count in last 72 hours,Labs: Blood gas count in last 72 hours
+LABS_creatinine_count_72h,Labs,Renal function count in last 72 hours,Labs: Renal function count in last 72 hours
+LABS_crp_count_72h,Labs,CRP count in last 72 hours,Labs: CRP count in last 72 hours
+LABS_pt_count_72h,Labs,Clotting count in last 72 hours,Labs: Clotting count in last 72 hours
+LABS_wcc_count_72h,Labs,Full blood count in last 72 hours,Labs: Full blood count in last 72 hours
+MICRO_amr_actual_species_amoxicillin_count_last_365d,Micro,Count of specific species isolates with amoxicillin resistance in last year,Micro: Count of specific species isolates with amoxicillin resistance in last year
+MICRO_amr_actual_species_amoxicillin_time_last_365d,Micro,Time since last specific species isolate with resistance to amoxicillin,Micro: Time since last specific species isolate with resistance to amoxicillin
+MICRO_amr_actual_species_cefalexin_count_last_365d,Micro,Count of specific species isolates with cefalexin resistance in last year,Micro: Count of specific species isolates with cefalexin resistance in last year
+MICRO_amr_actual_species_cefalexin_time_last_365d,Micro,Time since last specific species isolate with resistance to cefalexin,Micro: Time since last specific species isolate with resistance to cefalexin
+MICRO_amr_actual_species_ceftriaxone_count_last_365d,Micro,Count of specific species isolates with ceftriaxone resistance in last year,Micro: Count of specific species isolates with ceftriaxone resistance in last year
+MICRO_amr_actual_species_ceftriaxone_time_last_365d,Micro,Time since last specific species isolate with resistance to ceftriaxone,Micro: Time since last specific species isolate with resistance to ceftriaxone
+MICRO_amr_actual_species_ciprofloxacin_count_last_365d,Micro,Count of specific species isolates with ciprofloxacin resistance in last year,Micro: Count of specific species isolates with ciprofloxacin resistance in last year
+MICRO_amr_actual_species_ciprofloxacin_time_last_365d,Micro,Time since last specific species isolate with resistance to ciprofloxacin,Micro: Time since last specific species isolate with resistance to ciprofloxacin
+MICRO_amr_actual_species_co_amoxiclav_count_last_365d,Micro,Count of specific species isolates with co-amoxiclav resistance in last year,Micro: Count of specific species isolates with co-amoxiclav resistance in last year
+MICRO_amr_actual_species_co_amoxiclav_time_last_365d,Micro,Time since last specific species isolate with resistance to co-amoxiclav,Micro: Time since last specific species isolate with resistance to co-amoxiclav
+MICRO_amr_actual_species_co_trimoxazole_count_last_365d,Micro,Count of specific species isolates with co-trimoxazole resistance in last year,Micro: Count of specific species isolates with co-trimoxazole resistance in last year
+MICRO_amr_actual_species_co_trimoxazole_time_last_365d,Micro,Time since last specific species isolate with resistance to co-trimoxazole,Micro: Time since last specific species isolate with resistance to co-trimoxazole
+MICRO_amr_actual_species_ertapenem_count_last_365d,Micro,Count of specific species isolates with ertapenem resistance in last year,Micro: Count of specific species isolates with ertapenem resistance in last year
+MICRO_amr_actual_species_ertapenem_time_last_365d,Micro,Time since last specific species isolate with resistance to ertapenem,Micro: Time since last specific species isolate with resistance to ertapenem
+MICRO_amr_actual_species_gentamicin_count_last_365d,Micro,Count of specific species isolates with gentamicin resistance in last year,Micro: Count of specific species isolates with gentamicin resistance in last year
+MICRO_amr_actual_species_gentamicin_time_last_365d,Micro,Time since last specific species isolate with resistance to gentamicin,Micro: Time since last specific species isolate with resistance to gentamicin
+MICRO_amr_actual_species_meropenem_count_last_365d,Micro,Count of specific species isolates with meropenem resistance in last year,Micro: Count of specific species isolates with meropenem resistance in last year
+MICRO_amr_actual_species_meropenem_time_last_365d,Micro,Time since last specific species isolate with resistance to meropenem,Micro: Time since last specific species isolate with resistance to meropenem
+MICRO_amr_actual_species_nitrofurantoin_count_last_365d,Micro,Count of specific species isolates with nitrofurantoin resistance in last year,Micro: Count of specific species isolates with nitrofurantoin resistance in last year
+MICRO_amr_actual_species_nitrofurantoin_time_last_365d,Micro,Time since last specific species isolate with resistance to nitrofurantoin,Micro: Time since last specific species isolate with resistance to nitrofurantoin
+MICRO_amr_actual_species_piperacillin_tazobactam_count_last_365d,Micro,Count of specific species isolates with piperacillin-tazobactam resistance in last year,Micro: Count of specific species isolates with piperacillin-tazobactam resistance in last year
+MICRO_amr_actual_species_piperacillin_tazobactam_time_last_365d,Micro,Time since last specific species isolate with resistance to piperacillin-tazobactam,Micro: Time since last specific species isolate with resistance to piperacillin-tazobactam
+MICRO_amr_actual_species_trimethoprim_count_last_365d,Micro,Count of specific species isolates with trimethoprim resistance in last year,Micro: Count of specific species isolates with trimethoprim resistance in last year
+MICRO_amr_actual_species_trimethoprim_time_last_365d,Micro,Time since last specific species isolate with resistance to trimethoprim,Micro: Time since last specific species isolate with resistance to trimethoprim
+MICRO_amr_any_species_amoxicillin_count_last_365d,Micro,Count of  isolates with amoxicillin resistance in last year,Micro: Count of  isolates with amoxicillin resistance in last year
+MICRO_amr_any_species_amoxicillin_time_last_365d,Micro,Time since last isolate with resistance to amoxicillin,Micro: Time since last isolate with resistance to amoxicillin
+MICRO_amr_any_species_cefalexin_count_last_365d,Micro,Count of  isolates with cefalexin resistance in last year,Micro: Count of  isolates with cefalexin resistance in last year
+MICRO_amr_any_species_cefalexin_time_last_365d,Micro,Time since last isolate with resistance to cefalexin,Micro: Time since last isolate with resistance to cefalexin
+MICRO_amr_any_species_ceftriaxone_count_last_365d,Micro,Count of  isolates with ceftriaxone resistance in last year,Micro: Count of  isolates with ceftriaxone resistance in last year
+MICRO_amr_any_species_ceftriaxone_time_last_365d,Micro,Time since last isolate with resistance to ceftriaxone,Micro: Time since last isolate with resistance to ceftriaxone
+MICRO_amr_any_species_ciprofloxacin_count_last_365d,Micro,Count of  isolates with ciprofloxacin resistance in last year,Micro: Count of  isolates with ciprofloxacin resistance in last year
+MICRO_amr_any_species_ciprofloxacin_time_last_365d,Micro,Time since last isolate with resistance to ciprofloxacin,Micro: Time since last isolate with resistance to ciprofloxacin
+MICRO_amr_any_species_co_amoxiclav_count_last_365d,Micro,Count of  isolates with co-amoxiclav resistance in last year,Micro: Count of  isolates with co-amoxiclav resistance in last year
+MICRO_amr_any_species_co_amoxiclav_time_last_365d,Micro,Time since last isolate with resistance to co-amoxiclav,Micro: Time since last isolate with resistance to co-amoxiclav
+MICRO_amr_any_species_co_trimoxazole_count_last_365d,Micro,Count of  isolates with co-trimoxazole resistance in last year,Micro: Count of  isolates with co-trimoxazole resistance in last year
+MICRO_amr_any_species_co_trimoxazole_time_last_365d,Micro,Time since last isolate with resistance to co-trimoxazole,Micro: Time since last isolate with resistance to co-trimoxazole
+MICRO_amr_any_species_ertapenem_count_last_365d,Micro,Count of  isolates with ertapenem resistance in last year,Micro: Count of  isolates with ertapenem resistance in last year
+MICRO_amr_any_species_ertapenem_time_last_365d,Micro,Time since last isolate with resistance to ertapenem,Micro: Time since last isolate with resistance to ertapenem
+MICRO_amr_any_species_gentamicin_count_last_365d,Micro,Count of  isolates with gentamicin resistance in last year,Micro: Count of  isolates with gentamicin resistance in last year
+MICRO_amr_any_species_gentamicin_time_last_365d,Micro,Time since last isolate with resistance to gentamicin,Micro: Time since last isolate with resistance to gentamicin
+MICRO_amr_any_species_meropenem_count_last_365d,Micro,Count of  isolates with meropenem resistance in last year,Micro: Count of  isolates with meropenem resistance in last year
+MICRO_amr_any_species_meropenem_time_last_365d,Micro,Time since last isolate with resistance to meropenem,Micro: Time since last isolate with resistance to meropenem
+MICRO_amr_any_species_nitrofurantoin_count_last_365d,Micro,Count of  isolates with nitrofurantoin resistance in last year,Micro: Count of  isolates with nitrofurantoin resistance in last year
+MICRO_amr_any_species_nitrofurantoin_time_last_365d,Micro,Time since last isolate with resistance to nitrofurantoin,Micro: Time since last isolate with resistance to nitrofurantoin
+MICRO_amr_any_species_piperacillin_tazobactam_count_last_365d,Micro,Count of  isolates with piperacillin-tazobactam resistance in last year,Micro: Count of  isolates with piperacillin-tazobactam resistance in last year
+MICRO_amr_any_species_piperacillin_tazobactam_time_last_365d,Micro,Time since last isolate with resistance to piperacillin-tazobactam,Micro: Time since last isolate with resistance to piperacillin-tazobactam
+MICRO_amr_any_species_trimethoprim_count_last_365d,Micro,Count of  isolates with trimethoprim resistance in last year,Micro: Count of  isolates with trimethoprim resistance in last year
+MICRO_amr_any_species_trimethoprim_time_last_365d,Micro,Time since last isolate with resistance to trimethoprim,Micro: Time since last isolate with resistance to trimethoprim
+MICRO_micro_positive_any_species_count_blood_365d,Micro,Positive blood cultures in last year,Micro: Positive blood cultures in last year
+MICRO_micro_positive_any_species_count_urine_365d,Micro,Positive urine cultures in last year,Micro: Positive urine cultures in last year
+MICRO_micro_positive_specific_species_count_blood_365d,Micro,Blood cultures containing Enterobacterales in last year,Micro: Blood cultures containing Enterobacterales in last year
+MICRO_micro_positive_specific_species_count_urine_365d,Micro,Urine cultures containing Enterobacterales in last year,Micro: Urine cultures containing Enterobacterales in last year
+MICRO_micro_positive_specific_species_time_last_blood_365d,Micro,Time since last blood culture with Enterobacterales,Micro: Time since last blood culture with Enterobacterales
+MICRO_micro_positive_specific_species_time_last_urine_365d,Micro,Time since last urine culture with Enterobacterales,Micro: Time since last urine culture with Enterobacterales
+MICRO_micro_positive_time_last_blood_365d,Micro,Time since last positive blood culture,Micro: Time since last positive blood culture
+MICRO_micro_positive_time_last_urine_365d,Micro,Time since last positive urine culture,Micro: Time since last positive urine culture
+MICRO_micro_sample_count_blood_365d,Micro,Count of blood cultures sent in last year,Micro: Count of blood cultures sent in last year
+MICRO_micro_sample_count_urine_365d,Micro,Count of urine cultures sent in last year,Micro: Count of urine cultures sent in last year
+MICRO_micro_sample_time_last_blood_365d,Micro,Time since last blood culture sent,Micro: Time since last blood culture sent
+MICRO_micro_sample_time_last_urine_365d,Micro,Time since last urine culture sent,Micro: Time since last urine culture sent
+PERSONAL_last_bmi,Personal factors,Body mass index,Personal factors: Body mass index
+PERSONAL_last_height,Personal factors,Height,Personal factors: Height
+PERSONAL_last_weight,Personal factors,Weight,Personal factors: Weight
+PREV_HOSP_STAY_adm_type_Elective,Hospital exposure,Elective admission,Hospital exposure: Elective admission
+PREV_HOSP_STAY_adm_type_Emergency,Hospital exposure,Emergency admission,Hospital exposure: Emergency admission
+PREV_HOSP_STAY_adm_type_Maternity,Hospital exposure,Maternity admission,Hospital exposure: Maternity admission
+PREV_HOSP_STAY_adm_type_Other,Hospital exposure,Other admission,Hospital exposure: Other admission
+PREV_HOSP_STAY_adm_type_Outpatient,Hospital exposure,Outpatient attendance,Hospital exposure: Outpatient attendance
+PREV_HOSP_STAY_count_admissions_30d,Hospital exposure,Count of admissions in last 30 days,Hospital exposure: Count of admissions in last 30 days
+PREV_HOSP_STAY_count_admissions_365d,Hospital exposure,Count of admissions in last year,Hospital exposure: Count of admissions in last year
+PREV_HOSP_STAY_count_admissions_90d,Hospital exposure,Count of admissions in last 90 days,Hospital exposure: Count of admissions in last 90 days
+PREV_HOSP_STAY_days_since_admission_at_index_dt,Hospital exposure,Days since start of admission,Hospital exposure: Days since start of admission
+PREV_HOSP_STAY_sum_duration_d_admissions_30d,Hospital exposure,Days in hospital in last 30 days,Hospital exposure: Days in hospital in last 30 days
+PREV_HOSP_STAY_sum_duration_d_admissions_365d,Hospital exposure,Days in hospital in last year,Hospital exposure: Days in hospital in last year
+PREV_HOSP_STAY_sum_duration_d_admissions_90d,Hospital exposure,Days in hospital in last 90 days,Hospital exposure: Days in hospital in last 90 days
+PROCEDURES_surgery_clean_any_365d,Procedures,Any clean surgery in last year,Procedures: Any clean surgery in last year
+PROCEDURES_surgery_clean_contaminated_any_365d,Procedures,Any clean contaminated surgery in last year,Procedures: Any clean contaminated surgery in last year
+PROCEDURES_surgery_contaminated_any_365d,Procedures,Any contaminated surgery in last year,Procedures: Any contaminated surgery in last year
+PROCEDURES_urethral_catheter_code_any_365d,Procedures,Any urinary catheter code in last year,Procedures: Any urinary catheter code in last year
+SPECIALTY_current_spec_Acute and general surgery,Specialty,Acute and general surgery,Specialty: Acute and general surgery
+"SPECIALTY_current_spec_Acute, emergency and geriatric medicine",Specialty,"Acute, emergency and geriatric medicine","Specialty: Acute, emergency and geriatric medicine"
+SPECIALTY_current_spec_Critical care,Specialty,Critical care,Specialty: Critical care
+SPECIALTY_current_spec_Medical subspecialty,Specialty,Medical subspecialty,Specialty: Medical subspecialty
+SPECIALTY_current_spec_Obstetrics,Specialty,Obstetrics,Specialty: Obstetrics
+SPECIALTY_current_spec_Others,Specialty,Others,Specialty: Others
+SPECIALTY_current_spec_Paedatrics,Specialty,Paedatrics,Specialty: Paedatrics
+SPECIALTY_current_spec_Surgical subspecialty,Specialty,Surgical subspecialty,Specialty: Surgical subspecialty
+SPECIALTY_current_spec_Trauma and orthopedics,Specialty,Trauma and orthopedics,Specialty: Trauma and orthopedics
+VITALS_hr_count_24h,Vitals,Measurements obtained in last 24 hours,Vitals: Measurements obtained in last 24 hours
